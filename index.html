@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mini Shop — Shopping Cart Demo</title>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#121b2e; --muted:#a9b3c7; --text:#eef2ff;
+      --accent:#4f7cff; --accent2:#22c55e; --danger:#ef4444; --border:#223055;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#070b14, #0b1220);color:var(--text)}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1100px;margin:0 auto;padding:18px}
+    header{
+      position:sticky;top:0;z-index:10;
+      background:rgba(11,18,32,.88);backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--border)
+    }
+    .nav{display:flex;gap:10px;align-items:center;justify-content:space-between}
+    .brand{display:flex;gap:10px;align-items:center}
+    .logo{width:36px;height:36px;border-radius:10px;background:var(--accent);display:grid;place-items:center;font-weight:800}
+    .links{display:flex;gap:10px;flex-wrap:wrap}
+    .btnlink{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 12px;border:1px solid var(--border);
+      border-radius:12px;background:rgba(18,27,46,.7);
+      transition:.15s transform,.15s background;
+    }
+    .btnlink:hover{transform:translateY(-1px);background:rgba(18,27,46,.95)}
+    .btn{cursor:pointer;border:0;border-radius:12px;padding:10px 12px;font-weight:700}
+    .btn.primary{background:var(--accent);color:white}
+    .btn.green{background:var(--accent2);color:#05210f}
+    .btn.danger{background:var(--danger);color:white}
+    .pill{padding:6px 10px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:12px}
+    main{padding:18px 0}
+    .grid{display:grid;grid-template-columns: 1.7fr 1fr; gap:16px}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} header{position:static} }
+    .section{border:1px solid var(--border);background:rgba(18,27,46,.7);border-radius:18px;padding:16px}
+    h1{font-size:26px;margin:0 0 8px}
+    h2{font-size:18px;margin:0 0 12px}
+    p{color:var(--muted);line-height:1.55;margin:0 0 12px}
+    .products{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media (max-width: 900px){ .products{grid-template-columns:1fr} }
+    .card{border:1px solid var(--border);background:rgba(11,18,32,.5);border-radius:16px;padding:14px}
+    .card h3{margin:0 0 6px;font-size:16px}
+    .price{font-weight:800}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+    label{font-size:12px;color:var(--muted)}
+    select,input[type="number"]{
+      background:#0b1220;color:var(--text);
+      border:1px solid var(--border);border-radius:12px;padding:10px 12px;
+      outline:none;
+    }
+    input[type="number"]{width:92px}
+    .cartItem{
+      display:grid;grid-template-columns: 1fr auto;gap:10px;
+      padding:12px;border:1px solid var(--border);border-radius:14px;background:rgba(11,18,32,.45);
+      margin-bottom:10px;
+    }
+    .cartItem small{color:var(--muted)}
+    .totals{display:grid;gap:8px;margin-top:12px}
+    .totals div{display:flex;justify-content:space-between;color:var(--muted)}
+    .totals strong{color:var(--text)}
+    footer{color:var(--muted);padding:18px 0}
+    .anchorHint{font-size:12px;color:var(--muted)}
+  </style>
+</head>
+
+<body>
+  <!-- Anchors targets: #top, #products, #cart, #checkout -->
+  <header id="top">
+    <div class="container nav">
+      <div class="brand">
+        <div class="logo">S</div>
+        <div>
+          <div style="font-weight:900">Mini Shop</div>
+          <div class="anchorHint">Anchors + Hyperlink Buttons + Cart</div>
+        </div>
+      </div>
+
+      <!-- Hyperlink buttons (they are <a> links styled as buttons) -->
+      <nav class="links">
+        <a class="btnlink" href="#products">🛍️ Products</a>
+        <a class="btnlink" href="#cart">🧺 Cart</a>
+        <a class="btnlink" href="#checkout">💳 Checkout</a>
+        <a class="btnlink" href="#top">⬆️ Top</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="section">
+      <h1>Shopping Cart Demo Site</h1>
+      <p>
+        Choose product options (color/size), set quantity, and add items to cart.
+        Use the navigation buttons to jump between sections (anchors).
+      </p>
+      <span class="pill">Tip: This is a single-page website for easy submission.</span>
+    </div>
+
+    <div class="grid" style="margin-top:16px;">
+      <!-- PRODUCTS -->
+      <section class="section" id="products">
+        <h2>🛍️ Products (with options)</h2>
+        <p>Each product has options. When you add to cart, the chosen options are saved and priced.</p>
+
+        <div class="products" id="productGrid"></div>
+      </section>
+
+      <!-- CART -->
+      <aside class="section" id="cart">
+        <h2>🧺 Cart</h2>
+        <div id="cartList"></div>
+
+        <div class="totals">
+          <div><span>Subtotal</span><strong id="subtotal">$0.00</strong></div>
+          <div><span>Tax (8%)</span><strong id="tax">$0.00</strong></div>
+          <div><span>Total</span><strong id="total">$0.00</strong></div>
+        </div>
+
+        <div class="row" style="margin-top:12px;">
+          <button class="btn danger" id="clearCartBtn">Clear Cart</button>
+          <a class="btnlink" href="#checkout">Go to Checkout →</a>
+        </div>
+      </aside>
+    </div>
+
+    <!-- CHECKOUT -->
+    <section class="section" id="checkout" style="margin-top:16px;">
+      <h2>💳 Checkout (simple)</h2>
+      <p>This section is mainly to satisfy the “anchor + hyperlink button” requirement.</p>
+
+      <div class="row">
+        <a class="btnlink" href="#products">← Back to Products</a>
+        <button class="btn green" id="placeOrderBtn">Place Order</button>
+      </div>
+
+      <p id="orderMsg" style="margin-top:12px;"></p>
+    </section>
+
+    <footer>
+      <div>© Mini Shop — For class exercise. You can change products, prices, and options.</div>
+    </footer>
+  </main>
+
+  <script>
+    // ------- Product data (you can edit) -------
+    const PRODUCTS = [
+      {
+        id: "p1",
+        name: "Wireless Earbuds",
+        basePrice: 39.90,
+        options: {
+          Color: ["Black", "White", "Blue"],
+          Warranty: ["No warranty", "1 year (+$5)", "2 years (+$9)"]
+        },
+        optionPrice: {
+          "Warranty:1 year (+$5)": 5,
+          "Warranty:2 years (+$9)": 9
+        }
+      },
+      {
+        id: "p2",
+        name: "Hoodie",
+        basePrice: 29.50,
+        options: {
+          Size: ["S", "M", "L", "XL"],
+          Color: ["Gray", "Navy", "Green"]
+        },
+        optionPrice: {}
+      },
+      {
+        id: "p3",
+        name: "Coffee Beans 500g",
+        basePrice: 16.80,
+        options: {
+          Roast: ["Light", "Medium", "Dark"],
+          Grind: ["Whole Bean", "Espresso", "Filter"]
+        },
+        optionPrice: {}
+      }
+    ];
+
+    // ------- Cart state -------
+    const CART_KEY = "mini_shop_cart_v1";
+    let cart = loadCart();
+
+    function money(n){ return "$" + n.toFixed(2); }
+
+    function loadCart(){
+      try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
+      catch { return []; }
+    }
+    function saveCart(){
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    }
+
+    // ------- Render Products -------
+    const productGrid = document.getElementById("productGrid");
+    function renderProducts(){
+      productGrid.innerHTML = "";
+      PRODUCTS.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const optionControls = Object.entries(p.options).map(([group, values]) => {
+          const id = `${p.id}_${group}`;
+          return `
+            <div style="display:grid;gap:6px;min-width:160px">
+              <label for="${id}">${group}</label>
+              <select id="${id}">
+                ${values.map(v => `<option value="${v}">${v}</option>`).join("")}
+              </select>
+            </div>
+          `;
+        }).join("");
+
+        card.innerHTML = `
+          <h3>${p.name}</h3>
+          <div class="row" style="justify-content:space-between">
+            <div class="price">${money(p.basePrice)}</div>
+            <span class="pill">ID: ${p.id}</span>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            ${optionControls}
+            <div style="display:grid;gap:6px">
+              <label for="${p.id}_qty">Qty</label>
+              <input id="${p.id}_qty" type="number" min="1" value="1" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn primary" data-add="${p.id}">Add to Cart</button>
+            <a class="btnlink" href="#cart">View Cart</a>
+          </div>
+        `;
+
+        productGrid.appendChild(card);
+      });
+
+      // Add button listeners
+      document.querySelectorAll("[data-add]").forEach(btn => {
+        btn.addEventListener("click", () => addToCart(btn.getAttribute("data-add")));
+      });
+    }
+
+    // ------- Cart logic -------
+    function calcItemPrice(product, chosenOptions){
+      // base + option adjustments
+      let extra = 0;
+      for (const [group, value] of Object.entries(chosenOptions)){
+        const key = `${group}:${value}`;
+        extra += (product.optionPrice[key] || 0);
+      }
+      return product.basePrice + extra;
+    }
+
+    function addToCart(productId){
+      const product = PRODUCTS.find(p => p.id === productId);
+      const chosenOptions = {};
+
+      for (const group of Object.keys(product.options)){
+        const select = document.getElementById(`${product.id}_${group}`);
+        chosenOptions[group] = select.value;
+      }
+
+      const qty = Math.max(1, parseInt(document.getElementById(`${product.id}_qty`).value || "1", 10));
+
+      // if same product + same options exists, just increase qty
+      const signature = JSON.stringify({productId, chosenOptions});
+      const existing = cart.find(i => i.signature === signature);
+
+      if (existing) existing.qty += qty;
+      else {
+        const unitPrice = calcItemPrice(product, chosenOptions);
+        cart.push({
+          signature,
+          productId,
+          name: product.name,
+          chosenOptions,
+          unitPrice,
+          qty
+        });
+      }
+
+      saveCart();
+      renderCart();
+      // optional: jump to cart
+      location.hash = "#cart";
+    }
+
+    function removeItem(signature){
+      cart = cart.filter(i => i.signature !== signature);
+      saveCart();
+      renderCart();
+    }
+
+    function updateQty(signature, qty){
+      const item = cart.find(i => i.signature === signature);
+      if (!item) return;
+      item.qty = Math.max(1, qty);
+      saveCart();
+      renderCart();
+    }
+
+    // ------- Render Cart -------
+    const cartList = document.getElementById("cartList");
+    function renderCart(){
+      cartList.innerHTML = "";
+
+      if (cart.length === 0){
+        cartList.innerHTML = `<p>Your cart is empty. Go to <a class="btnlink" href="#products">Products</a>.</p>`;
+      } else {
+        cart.forEach(item => {
+          const optsText = Object.entries(item.chosenOptions)
+            .map(([k,v]) => `${k}: ${v}`).join(" • ");
+
+          const el = document.createElement("div");
+          el.className = "cartItem";
+          el.innerHTML = `
+            <div>
+              <div style="font-weight:900">${item.name}</div>
+              <small>${optsText}</small>
+              <div class="row" style="margin-top:8px">
+                <span class="pill">Unit: ${money(item.unitPrice)}</span>
+                <span class="pill">Item: ${money(item.unitPrice * item.qty)}</span>
+              </div>
+            </div>
+
+            <div style="display:grid;gap:8px;justify-items:end">
+              <div style="display:grid;gap:6px">
+                <label>Qty</label>
+                <input type="number" min="1" value="${item.qty}" data-qty="${item.signature}" />
+              </div>
+              <button class="btn danger" data-remove="${item.signature}">Remove</button>
+            </div>
+          `;
+          cartList.appendChild(el);
+        });
+      }
+
+      // bind listeners
+      document.querySelectorAll("[data-remove]").forEach(btn => {
+        btn.addEventListener("click", () => removeItem(btn.getAttribute("data-remove")));
+      });
+      document.querySelectorAll("[data-qty]").forEach(inp => {
+        inp.addEventListener("change", () => updateQty(inp.getAttribute("data-qty"), parseInt(inp.value || "1", 10)));
+      });
+
+      renderTotals();
+    }
+
+    function renderTotals(){
+      const subtotal = cart.reduce((s,i)=> s + i.unitPrice * i.qty, 0);
+      const tax = subtotal * 0.08;
+      const total = subtotal + tax;
+
+      document.getElementById("subtotal").textContent = money(subtotal);
+      document.getElementById("tax").textContent = money(tax);
+      document.getElementById("total").textContent = money(total);
+    }
+
+    // ------- Buttons -------
+    document.getElementById("clearCartBtn").addEventListener("click", () => {
+      cart = [];
+      saveCart();
+      renderCart();
+    });
+
+    document.getElementById("placeOrderBtn").addEventListener("click", () => {
+      const msg = document.getElementById("orderMsg");
+      if (cart.length === 0){
+        msg.textContent = "Your cart is empty — please add something first.";
+        msg.style.color = "#fca5a5";
+        return;
+      }
+      msg.textContent = "Order placed (demo). Thank you! You can clear cart or keep browsing.";
+      msg.style.color = "#86efac";
+    });
+
+    // Init
+    renderProducts();
+    renderCart();
+  </script>
+</body>
+</html>
